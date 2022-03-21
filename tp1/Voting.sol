@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.12;
 
-//Import de la librairie Ownable d'openzeppelin
+//Import of the Ownable library of openzeppelin
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-//L'administrateur est celui qui déploie le smart contrat
+//The administrator is the one who deploys the smart contract
 contract Voting is Ownable {
     //structure des électeurs
     struct Voter {
@@ -13,19 +13,19 @@ contract Voting is Ownable {
         uint256 votedProposalId;
     }
 
-    //Association d'adresses de votants avec des structures Voter
+    //Association of voter addresses with Voter structures
     mapping(address => Voter) voters;
 
-    //structure pour les propositions
+    //Structure for proposals
     struct Proposal {
         string description;
         uint256 voteCount;
     }
 
-    //Un tableau dynamic contenant les propositions des votants
+    //A dynamic table containing the voters' proposals
     Proposal[] proposals;
 
-    //Status du Workflow
+    //Workflow status
     enum WorkflowStatus {
         RegisteringVoters,
         ProposalsRegistrationStarted,
@@ -35,58 +35,58 @@ contract Voting is Ownable {
         VotesTallied
     }
 
-    //Variable globale du status du workflow, initialisé au status final pour éviter la par défaut à RegisteringVoters et bloquer l'appel
+    //Global variable of the workflow status, initialized to the final status to avoid defaulting to RegisteringVoters and blocking the call
     WorkflowStatus public currentStatus = WorkflowStatus.VotesTallied;
 
-    //ID de la proposition gagnante
+    //ID of the winning proposal
     uint256 winningProposalId; //=0;
 
-    //évènement d'un nouveau status de vote
+    //Event of a new voting status
     event WorkflowStatusChange(
         WorkflowStatus previousStatus,
         WorkflowStatus newStatus
     );
 
-    // *********** Début de l'enregistrement d'une liste blanche d'électeurs identifiés par leur adresse ***********
-    //Evènement de l'enregistrement de l'adresse d'un votant
+    // *********** Start registration of a white list of voters identified by their address ***********
+    //Voter address registration event
     event VoterRegistered(address voterAddress);
 
-    //Enregistrement d'une liste blanche d'électeurs
+    //Registration of a white list of voters
     function addVoter(address _address) public onlyOwner {
-        // Contrôles de cohérence du workflow et des électeurs
+        // Workflow and voter consistency checks
         if (currentStatus == WorkflowStatus.VotesTallied) {
             currentStatus = WorkflowStatus.RegisteringVoters;
         }
         require(
             currentStatus == WorkflowStatus.RegisteringVoters,
-            unicode"Vous ne pouvez pas enregistrer des électeurs car vous ne respectez pas l'ordre du workflow."
+            unicode"You cannot register voters because you are not following the workflow order."
         );
         require(
             !voters[_address].isRegistered,
-            unicode"Vous avez déjà enregistré cet électeur."
+            unicode"You have already registered this voter."
         );
 
-        //Enregistrement des électeurs
+        //Voter Registration
         voters[_address].isRegistered = true;
         emit VoterRegistered(_address);
     }
 
-    // *********** Fin de l'enregistrement d'une liste blanche d'électeurs identifiés par leur adresse ***********
+    // *********** End of the registration of a white list of voters identified by their address ***********
 
-    // *********** Début de la session d'enregistrement des propositions ***********
-    //L'administrateur commence une session d'enregistrement des propositions
+    // *********** Start of proposal registration session ***********
+    //The administrator starts a proposal registration session
     function proposalsRegistrationStarted() public onlyOwner {
-        // Contrôles de cohérence du workflow
+        // Workflow consistency checks
         require(
             currentStatus == WorkflowStatus.RegisteringVoters,
-            unicode"Vous ne pouvez pas enregistrer des propositions car vous ne respectez pas l'ordre du workflow."
+            unicode"You can't save proposals because you don't respect the workflow order."
         );
         require(
             currentStatus != WorkflowStatus.ProposalsRegistrationStarted,
-            unicode"Vous avez déjà débuté la session d'enregistrement des propositions."
+            unicode"You have already started the proposal registration session."
         );
 
-        //Passage à une autre étape du workflow
+        //Move to another step of the workflow
         currentStatus = WorkflowStatus.ProposalsRegistrationStarted;
         emit WorkflowStatusChange(
             WorkflowStatus.RegisteringVoters,
@@ -94,39 +94,39 @@ contract Voting is Ownable {
         );
     }
 
-    //Evènement de l'enregistrement d'une proposition
+    //Proposal registration event
     event ProposalRegistered(uint256 proposalId);
 
-    //Les électeurs inscrits sont autorisés à enregistrer leurs propositions (plusieurs propositions possibles par électeurs (cf. "leurs")
+    //Registered voters are allowed to register their proposals (several proposals possible per voter) (cf. "leurs")
     function putProposal(string memory _proposal) public {
-        // Contrôles de cohérence du workflow et des électeurs
+        // Workflow and voter consistency checks
         require(
             currentStatus == WorkflowStatus.ProposalsRegistrationStarted,
-            unicode"Vous ne pouvez pas enregistrer des propositions car l'administrateur n'a pas débuté l'enregistrement des propositions."
+            unicode"You cannot save proposals because the administrator has not started saving proposals."
         );
         require(
             voters[msg.sender].isRegistered == true,
-            unicode"Vous devez être enregistré pour faire une proposition."
+            unicode"You must be registered to make a proposal."
         );
 
-        //Enregistrement des propositions
+        //Registration of proposals
         proposals.push(Proposal({description: _proposal, voteCount: 0}));
         emit ProposalRegistered(proposals.length + 1);
     }
 
-    //L'administrateur de vote met fin à la session d'enregistrement des propositions.
+    //The voting administrator closes the proposal registration session.
     function proposalsRegistrationEnded() public onlyOwner {
-        // Contrôles de cohérence du workflow
+        //Workflow consistency checks
         require(
             currentStatus == WorkflowStatus.ProposalsRegistrationStarted,
-            unicode"Vous ne pouvez pas terminer l'enregistrement des propositions car vous ne respectez pas l'ordre du workflow."
+            unicode"You cannot complete the registration of proposals because you are not following the workflow order."
         );
         require(
             currentStatus != WorkflowStatus.ProposalsRegistrationEnded,
-            unicode"Vous avez déjà terminé la session d'enregistrement des propositions."
+            unicode"You have already completed the proposal registration session."
         );
 
-        //Passage à une autre étape du workflow
+        //Move to another step of the workflow
         currentStatus = WorkflowStatus.ProposalsRegistrationEnded;
         emit WorkflowStatusChange(
             WorkflowStatus.ProposalsRegistrationStarted,
@@ -134,22 +134,22 @@ contract Voting is Ownable {
         );
     }
 
-    // *********** Fin de la session d'enregistrement des propositions ***********
+    // *********** End of proposal registration session ***********
 
-    // *********** Début de la session de vote ***********
-    //L'administrateur commence la session de vote.
+    // *********** Voting session begins ***********
+    //The administrator starts the voting session.
     function votingSessionStarted() public onlyOwner {
-        // Contrôles de cohérence du workflow
+        // Workflow consistency checks
         require(
             currentStatus == WorkflowStatus.ProposalsRegistrationEnded,
-            unicode"Vous ne pouvez pas débuter la session d'enregistrement des votes car vous ne respectez pas l'ordre du workflow."
+            unicode"You cannot start the vote recording session because you are not following the workflow order."
         );
         require(
             currentStatus != WorkflowStatus.VotingSessionStarted,
-            unicode"Vous avez déjà débuté la session d'enregistrement des votes."
+            unicode"You have already started the vote recording session."
         );
 
-        //Passage à une autre étape du workflow
+        //Move to another step of the workflow
         currentStatus = WorkflowStatus.VotingSessionStarted;
         emit WorkflowStatusChange(
             WorkflowStatus.ProposalsRegistrationEnded,
@@ -157,60 +157,59 @@ contract Voting is Ownable {
         );
     }
 
-    //Evènement d'un votant qui vote pour une proposition
+    //Event of a voter voting for a proposal
     event Voted(address voter, uint256 proposalId);
 
     /*
-    Les électeurs inscrits votent pour leurs propositions préférées. 
-    NB : un électeur ne peut voter qu'une seule fois. 
-    NB2 : à la compilation l'éditeur remix indique qu'il faut mettre le type payable
+    Registered voters vote for their preferred proposals.
+    NB: a voter can vote only once.
+    NB2 : at the compilation the remix editor indicates that the type payable must be put
     */
     function vote(uint256 _proposalID) public payable {
-        // Contrôles de cohérence du workflow et de l'adresse courante
+        // Workflow and current address consistency checks
         require(
             currentStatus == WorkflowStatus.VotingSessionStarted,
-            unicode"Vous ne pouvez pas voter car l'enregistrement des votes n'a pas débuté."
+            unicode"You cannot vote because the recording of votes has not started."
         );
-        //Voter memory sender = voters[msg.sender];
         require(
             voters[msg.sender].isRegistered,
-            unicode"Cet electeur n'a pas le droit de voter car il n'est pas enregistré."
+            unicode"This voter is not allowed to vote because he is not registered."
         );
         require(
             (_proposalID) != 0,
-            unicode"Cet identifiant de proposition n'existe pas."
+            unicode"This proposal identifier does not exist."
         );
         require(
             (_proposalID) <= proposals.length,
-            unicode"Cet identifiant de proposition n'existe pas."
+            unicode"This proposal identifier does not exist."
         );
         require(
             !voters[msg.sender].hasVoted,
-            unicode"Cet électeur a déjà vote."
+            unicode"This voter has already voted."
         );
 
-        //Enregistrement des votes
+        //Registration of votes
         voters[msg.sender].votedProposalId = _proposalID;
         voters[msg.sender].hasVoted = true;
         proposals[_proposalID - 1].voteCount += 1;
 
-        //Trigger de l'évènement a voté
+        //Trigger of the event voted
         emit Voted(msg.sender, msg.value);
     }
 
-    //L'administrateur met fin à la session de vote.
+    //The administrator closes the voting session.
     function votingSessionEnded() public onlyOwner {
-        // Contrôles de cohérence du workflow
+        // Workflow consistency checks
         require(
             currentStatus == WorkflowStatus.VotingSessionStarted,
-            unicode"Vous ne pouvez pas terminer la session de vote car vous ne respectez pas l'ordre du workflow."
+            unicode"You cannot complete the voting session because you are not following the workflow order."
         );
         require(
             currentStatus != WorkflowStatus.VotingSessionEnded,
-            unicode"Vous avez déjà terminé la session d'enregistrement des votes."
+            unicode"You have already completed the vote recording session."
         );
 
-        //Passage à une autre étape du workflow
+        //Move to another step of the workflow
         currentStatus = WorkflowStatus.VotingSessionEnded;
         emit WorkflowStatusChange(
             WorkflowStatus.VotingSessionStarted,
@@ -218,23 +217,23 @@ contract Voting is Ownable {
         );
     }
 
-    // *********** Fin de la session de vote ***********
+    // *********** End of the voting session ***********
 
-    // *********** Début du comptage des votes ***********
-    //L'administrateur comptabilise les votes.
+    // *********** Start of vote counting ***********
+    //The administrator counts the votes.
     function findWinner() public onlyOwner {
-        // Contrôles de cohérence du workflow
+        // Workflow consistency checks
         require(
             currentStatus == WorkflowStatus.VotingSessionEnded,
-            unicode"Vous ne pouvez pas exécuter cette fonction car vous ne respectez pas l'ordre du workflow."
+            unicode"You can't execute this function because you don't respect the workflow order."
         );
 
-        //Utiliser la variable winningProposalId pour trouver l'ID de la proposition gagnante
+        //Use the variable winningProposalId to find the ID of the winning proposal
         uint256 tempVoteCount = 0;
         for (uint256 i = 0; i < proposals.length; i++) {
             if (proposals[i].voteCount > tempVoteCount) {
                 tempVoteCount = proposals[i].voteCount;
-                // +1 au résultat pour éviter le cas d'un vote avec une proposition pour le ccontrôle dans getWinner(). -1 dans la fonction getWinner()
+                // +1 to the result to avoid the case of a vote with a proposal for the control in getWinner() => -1 in the getWinner() function
                 winningProposalId = i + 1;
             }
         }
@@ -245,15 +244,15 @@ contract Voting is Ownable {
         );
     }
 
-    // *********** Fin du comptage des votes ***********
+    // *********** End of vote counting ***********
 
-    // *********** Affichage des détails de la proposition gagante ***********
-    //Dans l'énnoncé, il est indiqué que TOUT le monde peut vérifier les détails de la proposition gagnante (il n'est pas indiqué que seul les votants peuvent vérifier)
+    // *********** Viewing the details of the winning proposal ***********
+    //In the statement, it says that "TOUT le monde peut vérifier les détails de la proposition gagnante" (it does not say that only voters can check)
     function getWinner() public view returns (Proposal memory) {
-        // Contrôles de cohérence du workflow
+        // Workflow consistency checks
         require(
             winningProposalId != 0,
-            unicode"Vous ne pouvez pas voir les détails de la proposition gagnante car il n'y en a pas pour le moment."
+            unicode"You cannot see the details of the winning proposal because there are none at this time."
         );
 
         return proposals[winningProposalId - 1];
