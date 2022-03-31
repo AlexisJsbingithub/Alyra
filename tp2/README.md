@@ -18,12 +18,12 @@ All the functions of the contract are tested
 - nom de test 1
 - nom de test 2
 
-### 3)
+### 3) VOTING SESSION ON PROPOSALS
 
 - nom de test 1
 - nom de test 2
 
-### 3)
+### 4) COUNTING THE VOTES AND PUBLISHING THE WINNING PROPOSAL
 
 - nom de test 1
 - nom de test 2
