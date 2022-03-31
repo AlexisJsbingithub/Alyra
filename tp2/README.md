@@ -8,7 +8,7 @@ All the functions of the contract are tested
 
 1 file : TestVoting.js
 
-### 1) VOTER REGISTRATION BY ADDRESS
+### 1) TESTS - VOTER REGISTRATION BY ADDRESS
 
 - nom de test 1
 - nom de test 2
@@ -18,7 +18,7 @@ event VoterRegistered(address voterAddress);
 event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
 L’administrateur est celui qui va déployer le smart contract.
 
-### 2) REGISTRATION SESSION FOR NEW PROPOSALS
+### 2) TESTS - REGISTRATION SESSION FOR NEW PROPOSALS
 
 - nom de test 1
 - nom de test 2
@@ -29,7 +29,7 @@ event ProposalRegistered(uint proposalId);
 L'administrateur de vote met fin à la session d'enregistrement des propositions.
 event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
 
-### 3) VOTING SESSION ON PROPOSALS
+### 3) TESTS - VOTING SESSION ON PROPOSALS
 
 - nom de test 1
 - nom de test 2
@@ -41,7 +41,7 @@ event Voted (address voter, uint proposalId);
 L'administrateur du vote met fin à la session de vote.
 event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
 
-### 4) COUNTING THE VOTES AND PUBLISHING THE WINNING PROPOSAL
+### 4) TESTS - COUNTING THE VOTES AND PUBLISHING THE WINNING PROPOSAL
 
 - nom de test 1
 - nom de test 2
