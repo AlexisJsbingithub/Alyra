@@ -1,2 +1,0 @@
-# Alyra
-TPs Alyra
