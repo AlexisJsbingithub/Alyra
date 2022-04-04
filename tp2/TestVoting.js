@@ -15,7 +15,6 @@ contract('TestVoting', accounts => {
     let VotingInstance;
 
     /*Factorisation of expectRevert tests : 
-        _unspecified : if the revert is unspecified or not
         _id : current test number
         _functionName : name of the function to test
         _description : end of message to be resent
@@ -23,17 +22,13 @@ contract('TestVoting', accounts => {
         _valueAddress : the address that executes the function
         _requireMessage : type of the returned require to test
     */
-    function factorisationRevert(_unspecified,_id,_functionName,_description,_valueArg,_valueAddress,_requireMessage) {
+    function factorisationRevert(_id,_functionName,_description,_valueArg,_valueAddress,_requireMessage) {
         currentIdTest++;
         //The console.log in commentary is there to check the return of the String of this function => remove the comments for the verifications
 
-        //console.log("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert"+((_unspecified!="")?("."+_unspecified):"")+"(VotingInstance."+_functionName+"("+((_valueArg!="")?(_valueArg+", "):"")+"{from:"+_valueAddress+"})"+((_requireMessage!="")?(", \""+_requireMessage+"\""):"")+")});");
+        //console.log("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert(VotingInstance."+_functionName+"("+((_valueArg!="")?(_valueArg+", "):"")+"{from:"+_valueAddress+"})"+((_requireMessage!="")?(", \""+_requireMessage+"\""):"")+")});");
 
-        return ("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert"+(
-            (_unspecified!="")?
-                ("."+_unspecified):
-                ""
-            )+"(VotingInstance."+_functionName+"("+(
+        return ("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert(VotingInstance."+_functionName+"("+(
                 (_valueArg!="")?
                 (_valueArg+", "):
                 ""
@@ -86,7 +81,7 @@ contract('TestVoting', accounts => {
         //If the second address cannot call the functions, this confirms the onlyOwner, it is possible to test all the accounts with addresses.length but the following tests do not bring a different confirmation
         for(let i=0;i<testEnum.length;i++)
         {
-            eval(factorisationRevert("",currentIdTest+1,testEnum[i][0],"can only be executed by the administrator (onlyOwner)",testEnum[i][1],"address2","Ownable: caller is not the owner"));
+            eval(factorisationRevert(currentIdTest+1,testEnum[i][0],"can only be executed by the administrator (onlyOwner)",testEnum[i][1],"address2","Ownable: caller is not the owner"));
         }
     });
 
@@ -112,7 +107,7 @@ contract('TestVoting', accounts => {
         */
         for(let i=0;i<testEnum.length;i++)
         {
-            eval(factorisationRevert("",(currentIdTest+1),testEnum[i][0],"cannot be called because the logical sequence of the workflow does not allow it",testEnum[i][1],"owner","You're not a voter"));
+            eval(factorisationRevert((currentIdTest+1),testEnum[i][0],"cannot be called because the logical sequence of the workflow does not allow it",testEnum[i][1],"owner","You're not a voter"));
         }
     });
 
@@ -138,7 +133,7 @@ contract('TestVoting', accounts => {
         */
         for(let i=0;i<testEnum.length;i++)
         {
-            eval(factorisationRevert("",(currentIdTest+1),testEnum[i][0],"cannot be executed because the workflowstatus does not allow it","","owner",testEnum[i][1]));
+            eval(factorisationRevert((currentIdTest+1),testEnum[i][0],"cannot be executed because the workflowstatus does not allow it","","owner",testEnum[i][1]));
         }
     });
 
@@ -168,7 +163,7 @@ contract('TestVoting', accounts => {
 
         //Test 17 - The function addVoter does not allow to register the same address more than once (test on address 6)
         currentIdTest += 3;
-        eval(factorisationRevert("",(currentIdTest),"addVoter","does not allow to register the same address more than once (test on address 6)","address6","owner","Already registered"));
+        eval(factorisationRevert((currentIdTest),"addVoter","does not allow to register the same address more than once (test on address 6)","address6","owner","Already registered"));
     });
 
 
@@ -184,16 +179,16 @@ contract('TestVoting', accounts => {
         });
 
         //Test 18 - The function addProposal cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it
-        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it","''","address2","Proposals are not allowed yet"));
+        eval(factorisationRevert((currentIdTest),"addProposal","cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it","''","address2","Proposals are not allowed yet"));
 
         it("Test 19 - Workflow status change event to ProposalsRegistrationStarted", async () => {
             let findEvent = await VotingInstance.startProposalsRegistering({from:owner});
             expectEvent(findEvent,'WorkflowStatusChange',{previousStatus:new BN(0),newStatus:new BN(1)});
         });
 
-        //Test 20 - The function getOneProposal cannot send a result because there was no proposal registered
+        //Test 20 - The function getOneProposal cannot send a result because there was no proposal registered ('VM Exception while processing transaction: revert')
         currentIdTest++;
-        eval(factorisationRevert("unspecified",(currentIdTest),"getOneProposal","cannot send a result because there was no proposal registered (error not handled)","0","owner",""));
+        eval(factorisationRevert((currentIdTest),"getOneProposal","cannot send a result because there was no proposal registered ('VM Exception while processing transaction: revert')","0","owner","VM Exception while processing transaction: revert"));
 
         it("Test 21 - Insert 9 proposals of the first 9 ganache addresses, and insert a tenth and test the ProposalRegistered event", async () => {
             //Register the first 9 proposals made by the first 9 ganache addresses
@@ -208,10 +203,10 @@ contract('TestVoting', accounts => {
 
         //Test 22 - The function addProposal cannot be executed because the address is not allowed to register a proposal
         currentIdTest++;
-        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed because the address is not allowed to register a proposal","''","0x1000000000000000000000000000000000000001","You're not a voter"));
+        eval(factorisationRevert((currentIdTest),"addProposal","cannot be executed because the address is not allowed to register a proposal","''","0x1000000000000000000000000000000000000001","You're not a voter"));
 
         //Test 23 - The function addProposal cannot be executed by a voter (for this test : the address6) because the proposal is empty
-        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed by a voter (for this test : the address6) because the proposal is empty","","address6","Vous ne pouvez pas ne rien proposer"));
+        eval(factorisationRevert((currentIdTest),"addProposal","cannot be executed by a voter (for this test : the address6) because the proposal is empty","","address6","Vous ne pouvez pas ne rien proposer"));
 
         it("Test 24 - Test that a voter (for this test : the address2) can verify that the description of proposition 10 is equal to 'Proposition 10 : tous les participants Alyra ont 10 exercices corrects'", async () => {
             let storedVote = await VotingInstance.getOneProposal(new BN(9),{from:address2});
@@ -230,7 +225,7 @@ contract('TestVoting', accounts => {
 
         //Test 27 - The function addProposal cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it
         currentIdTest += 3;
-        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it","''","address2","Proposals are not allowed yet"));
+        eval(factorisationRevert((currentIdTest),"addProposal","cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it","''","address2","Proposals are not allowed yet"));
 
     });
 
@@ -272,7 +267,7 @@ contract('TestVoting', accounts => {
         */
         for(let i=0;i<testEnum.length;i++)
         {
-            eval(factorisationRevert("",(currentIdTest),testEnum[i][0],"cannot be executed because the workflowstatus does not allow it",testEnum[i][1],"owner",testEnum[i][2]));
+            eval(factorisationRevert((currentIdTest),testEnum[i][0],"cannot be executed because the workflowstatus does not allow it",testEnum[i][1],"owner",testEnum[i][2]));
         }
     });
 
@@ -323,7 +318,7 @@ contract('TestVoting', accounts => {
 
         //Test 37 - The function setVote cannot be executed because the id of the proposal does not exist
         currentIdTest+=2;
-        eval(factorisationRevert("",(currentIdTest),"setVote","cannot be executed because the id of the proposal does not exist","11","address6","Proposal not found"));
+        eval(factorisationRevert((currentIdTest),"setVote","cannot be executed because the id of the proposal does not exist","11","address6","Proposal not found"));
 
         it("Test 38 - Register the first 9 votes cast by the first 9 ganache addresses, with no votes for proposition 3, and with address 10 voting for proposition 8 (which will therefore have 2 votes), with the test of this last event", async () => {
             //Register the first 9 votes cast by the first 9 ganache addresses, with no votes for proposition 3
@@ -338,7 +333,7 @@ contract('TestVoting', accounts => {
 
         //Test 39 - The function setVote cannot be executed twice by the same address
         currentIdTest++;
-        eval(factorisationRevert("",(currentIdTest),"setVote","cannot be executed twice by the same address",1,"address2","You have already voted"));
+        eval(factorisationRevert((currentIdTest),"setVote","cannot be executed twice by the same address",1,"address2","You have already voted"));
 
         it("Test 40 - Verification that the 3rd proposition has no vote, and that it corresponds to 'Proposition 3 : all Alyra participants have 3 correct exercises'", async () => {
             let storedProposal = await VotingInstance.getOneProposal(new BN(2),{from:address6});
@@ -359,8 +354,8 @@ contract('TestVoting', accounts => {
         });
     });
 
-    //### ** ERROR TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **
-    describe("### ** ERROR TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **", function () {
+    //### ** BUG TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **
+    describe("### ** BUG TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **", function () {
         before(async function () {
             VotingInstance = await Voting.new({from:owner});
 
@@ -376,9 +371,9 @@ contract('TestVoting', accounts => {
             await VotingInstance.startVotingSession({from:owner});
         });
 
-        //Test 42 - The function setVote generate an error not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table
+        //Test 42 - The function setVote generate a problem not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table (Panic: Index out of bounds)
         currentIdTest+=2;
-        eval(factorisationRevert("unspecified",(currentIdTest),"setVote","generate an error not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table","10","owner",""));
+        eval(factorisationRevert((currentIdTest),"setVote","generate a problem not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table (Panic: Index out of bounds)","10","owner","Panic: Index out of bounds"));
     });
 
 
@@ -405,7 +400,7 @@ contract('TestVoting', accounts => {
         });
 
         //Test 43 - The function tallyVotes cannot be executed because the workflowstatus does not allow it
-        eval(factorisationRevert("",(currentIdTest),"tallyVotes","cannot be executed because the workflowstatus does not allow it","","owner","Current status is not voting session ended"));
+        eval(factorisationRevert((currentIdTest),"tallyVotes","cannot be executed because the workflowstatus does not allow it","","owner","Current status is not voting session ended"));
 
         it("Test 44 - Workflow status change event to endVotingSession", async () => {
             let findEvent = await VotingInstance.endVotingSession({from:owner});

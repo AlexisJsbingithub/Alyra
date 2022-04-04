@@ -45,7 +45,7 @@ All the functions of the contract are tested
 
 - Test 18 - The function addProposal cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it
 - Test 19 - Workflow status change event to ProposalsRegistrationStarted
-- Test 20 - The function getOneProposal cannot send a result because there was no proposal registered (error not handled)
+- Test 20 - The function getOneProposal cannot send a result because there was no proposal registered ('VM Exception while processing transaction: revert')
 - Test 21 - Insert 9 proposals of the first 9 ganache addresses, and insert a tenth and test the ProposalRegistered event
 - Test 22 - The function addProposal cannot be executed because the address is not allowed to register a proposal
 - Test 23 - The function addProposal cannot be executed by a voter (for this test : the address6) because the proposal is empty
@@ -77,9 +77,9 @@ All the functions of the contract are tested
 - Test 40 - Verification that the 3rd proposition has no vote, and that it corresponds to 'Proposition 3 : all Alyra participants have 3 correct exercises'
 - Test 41 - With several addresses it is possible to verify that proposition 8 has 2 votes (made by address 7 and address 10), and that it corresponds to 'Proposition 8 : all Alyra participants have 8 correct exercises'
 
-### ** ERROR TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **
+### ** BUG TEST OF THE VOTE OF THE PROPOSAL WHICH DOES NOT EXIST AND WHICH IS NOT TREATED BY THE REVERT 'PROPOSAL NOT FOUND' **
 
-- Test 42 - The function setVote generate an error not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table
+- Test 42 - The function setVote generate a problem not handled by the 'Proposal not found' revert because it is possible to give in a proposal id longer than the length of the proposal table (Panic: Index out of bounds)
 
 ### VIII. TESTS - COUNTING THE VOTES AND PUBLISHING THE WINNING PROPOSAL
 
