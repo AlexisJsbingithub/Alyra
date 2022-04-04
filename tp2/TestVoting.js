@@ -208,7 +208,7 @@ contract('TestVoting', accounts => {
 
         //Test 22 - The function addProposal cannot be executed because the address is not allowed to register a proposal
         currentIdTest++;
-        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed because the address is not allowed to register a proposal","''","0x0000000000000000000000000000000000000001","You're not a voter"));
+        eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed because the address is not allowed to register a proposal","''","0x1000000000000000000000000000000000000001","You're not a voter"));
 
         //Test 23 - The function addProposal cannot be executed by a voter (for this test : the address6) because the proposal is empty
         eval(factorisationRevert("",(currentIdTest),"addProposal","cannot be executed by a voter (for this test : the address6) because the proposal is empty","","address6","Vous ne pouvez pas ne rien proposer"));
