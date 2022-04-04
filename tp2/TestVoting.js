@@ -26,7 +26,7 @@ contract('TestVoting', accounts => {
     function factorisationRevert(_unspecified,_id,_functionName,_description,_valueArg,_valueAddress,_requireMessage) {
         currentIdTest++;
         //The console.log in commentary is there to check the return of the String of this function => remove the comments for the verifications
-        
+
         //console.log("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert"+((_unspecified!="")?("."+_unspecified):"")+"(VotingInstance."+_functionName+"("+((_valueArg!="")?(_valueArg+", "):"")+"{from:"+_valueAddress+"})"+((_requireMessage!="")?(", \""+_requireMessage+"\""):"")+")});");
 
         return ("it(\"Test "+_id+" - The function "+_functionName+" "+_description+"\", async () => {await expectRevert"+(
@@ -86,7 +86,7 @@ contract('TestVoting', accounts => {
         //If the second address cannot call the functions, this confirms the onlyOwner, it is possible to test all the accounts with addresses.length but the following tests do not bring a different confirmation
         for(let i=0;i<testEnum.length;i++)
         {
-            eval(factorisationRevert("unspecified",currentIdTest+1,testEnum[i][0],"can only be executed by the administrator (onlyOwner)",testEnum[i][1],"address2",""));
+            eval(factorisationRevert("",currentIdTest+1,testEnum[i][0],"can only be executed by the administrator (onlyOwner)",testEnum[i][1],"address2","Ownable: caller is not the owner"));
         }
     });
 
@@ -193,7 +193,7 @@ contract('TestVoting', accounts => {
 
         //Test 20 - The function getOneProposal cannot send a result because there was no proposal registered
         currentIdTest++;
-        eval(factorisationRevert("unspecified",(currentIdTest),"getOneProposal","cannot send a result because there was no proposal registered","0","owner",""));
+        eval(factorisationRevert("unspecified",(currentIdTest),"getOneProposal","cannot send a result because there was no proposal registered (error not handled)","0","owner",""));
 
         it("Test 21 - Insert 9 proposals of the first 9 ganache addresses, and insert a tenth and test the ProposalRegistered event", async () => {
             //Register the first 9 proposals made by the first 9 ganache addresses

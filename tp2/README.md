@@ -45,7 +45,7 @@ All the functions of the contract are tested
 
 - Test 18 - The function addProposal cannot be executed by a registered voter (for this test : the address2) because the workflowstatus does not allow it
 - Test 19 - Workflow status change event to ProposalsRegistrationStarted
-- Test 20 - The function getOneProposal cannot send a result because there was no proposal registered
+- Test 20 - The function getOneProposal cannot send a result because there was no proposal registered (error not handled)
 - Test 21 - Insert 9 proposals of the first 9 ganache addresses, and insert a tenth and test the ProposalRegistered event
 - Test 22 - The function addProposal cannot be executed because the address is not allowed to register a proposal
 - Test 23 - The function addProposal cannot be executed by a voter (for this test : the address6) because the proposal is empty
